@@ -53,7 +53,7 @@ object UbuntuPastebinHelper {
      * @param expiration 过期时间（(empty)/day/week/month/year） 默认值："day"
      * @return 返回访问地址，如：https://paste.ubuntu.com/p/nmn8yKMtND/
      */
-    fun paste(content: String, syntax: String = "text", poster: String = "temp", expiration: String = "day"): String? {
+    fun paste(content: String, syntax: String = "text", poster: String = "temp", expiration: String = "day"): String {
         if (poster.length > 30)
             throw Exception("poster length too long!")
         if (content.isEmpty())

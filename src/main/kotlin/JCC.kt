@@ -16,13 +16,14 @@ object JCC : KotlinPlugin(
     JvmPluginDescription(
         id = "me.jie65535.jcc",
         name = "J Compiler Collection",
-        version = "0.1",
+        version = "0.2",
     ) {
         author("jie65535")
         info("""在线编译器集合""")
     }
 ) {
     const val CMD_PREFIX = "jcc"
+    const val MSG_MAX_LENGTH = 550
 
     override fun onEnable() {
         logger.info { "Plugin loaded" }
@@ -36,30 +37,34 @@ object JCC : KotlinPlugin(
                 val msg = it.substring(CMD_PREFIX.length).trim()
                 if (msg.isNotEmpty()) {
                     val index = msg.indexOfFirst(Char::isWhitespace)
-                    if (index >= 0)
-                    {
-                        val language = msg.substring(0, index)
-                        val code = msg.substring(index).trim()
-                        if (!GlotAPI.checkSupport(language))
-                            return@reply "不支持这种编程语言\n/jcc list #列出所有支持的编程语言"
-                        if (code.isEmpty())
-                            return@reply "请输入要运行的代码"
-                        try {
-                            // subject.sendMessage("正在执行，请稍等...")
-                            logger.info("请求执行代码")
-                            val result = GlotAPI.runCode(language, code)
-                            val builder = MessageChainBuilder()
-                            var c = 0
-                            if (result.stdout.isNotEmpty()) c++
-                            if (result.stderr.isNotEmpty()) c++
-                            if (result.error.isNotEmpty()) c++
-                            val title = c >= 2
-                            var msgLength = 0
-                            if (subject is Group) {
-                                builder.add(At(sender))
-                                builder.add("\n")
-                            }
+                    val language =  if (index >= 0) msg.substring(0, index) else msg
+                    if (!GlotAPI.checkSupport(language))
+                        return@reply "不支持这种编程语言\n/jcc list #列出所有支持的编程语言"
+                    val code = if (index >= 0) {
+                        msg.substring(index).trim()
+                    } else {
+                        return@reply "$CMD_PREFIX $language\n" + GlotAPI.getTemplateFile(language).content
+                    }
 
+                    try {
+                        // subject.sendMessage("正在执行，请稍等...")
+                        logger.info("请求执行代码")
+                        val result = GlotAPI.runCode(language, code)
+                        val builder = MessageChainBuilder()
+                        var c = 0
+                        if (result.stdout.isNotEmpty()) c++
+                        if (result.stderr.isNotEmpty()) c++
+                        if (result.error.isNotEmpty()) c++
+                        val title = c >= 2
+                        var msgLength = 0
+                        if (subject is Group) {
+                            builder.add(At(sender))
+                            builder.add("\n")
+                        }
+
+                        if (c == 0) {
+                            builder.add("没有任何结果呢~")
+                        } else {
                             if (result.error.isNotEmpty()) {
                                 builder.add("error:\n")
                                 builder.add(result.error)
@@ -75,17 +80,17 @@ object JCC : KotlinPlugin(
                                 builder.add(result.stderr)
                                 msgLength += result.stderr.length
                             }
-                            val messageChain = builder.build()
-                            if (msgLength > 500) {
-                                val messageContent = messageChain.contentToString()
-                                return@reply "消息内容过长，已贴到Pastebin：\n" + UbuntuPastebinHelper.paste(messageContent)
-                            } else {
-                                return@reply messageChain
-                            }
-                        } catch (e: Exception) {
-                            logger.warning(e)
-                            return@reply "执行失败\n原因：${e.message}"
                         }
+                        val messageChain = builder.build()
+                        if (msgLength > MSG_MAX_LENGTH) {
+                            val messageContent = messageChain.contentToString()
+                            return@reply "消息内容过长，已贴到Pastebin：\n" + UbuntuPastebinHelper.paste(messageContent)
+                        } else {
+                            return@reply messageChain
+                        }
+                    } catch (e: Exception) {
+                        logger.warning(e)
+                        return@reply "执行失败\n原因：${e.message}"
                     }
                 }
                 return@reply "请输入正确的命令！例如：\n$CMD_PREFIX python print(\"Hello world\")"

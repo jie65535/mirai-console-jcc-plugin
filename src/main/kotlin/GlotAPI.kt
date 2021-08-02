@@ -1,6 +1,5 @@
-import com.beust.klaxon.Json
-import com.beust.klaxon.Klaxon
-import java.security.InvalidKeyException
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 /**
  * # glot.io api 封装
@@ -8,7 +7,6 @@ import java.security.InvalidKeyException
  * 它提供了免费API供外界使用，API文档见 [https://github.com/glotcode/glot/blob/master/api_docs]
  * 本类是对该API文档的封装
  * 通过 [listLanguages] 获取支持在线运行的编程语言列表
- * ~~通过 [getVersion] 获取对应语言的最新版本请求地址~~
  * 通过 [getSupport] 判断指定编程语言是否支持
  * 通过 [getTemplateFile] 来获取指定编程语言的模板文件（runCode需要）
  * 以上接口均有缓存，仅首次获取不同数据时会发起请求。因此，首次运行可能较慢。
@@ -25,12 +23,16 @@ object GlotAPI {
     // 运行代码需要api token，这是的我账号申请的，可以在[https://glot.io/auth/page/simple/register]注册帐号
     private const val API_TOKEN = "074ef4a7-7a94-47f2-9891-85511ef1fb52"
 
+    @Serializable
     data class Language(val name: String, val url: String)
+    @Serializable
     data class CodeFile(val name: String, val content: String)
 
-    data class RunCodeRequest(@Json(serializeNull = false) val stdin: String?,
-                              @Json(serializeNull = false) val command: String?,
+    @Serializable
+    data class RunCodeRequest(val stdin: String? = null,
+                              val command: String? = null,
                               val files: List<CodeFile>)
+    @Serializable
     data class RunResult(val stdout: String, val stderr: String, val error: String)
 
     private var languages: List<Language>? = null
@@ -55,7 +57,7 @@ object GlotAPI {
      */
     fun listLanguages(): List<Language> {
         if (languages == null) {
-            languages = Klaxon().parseArray(HttpUtil.get(URL_LIST_LANGUAGES)) ?: throw Exception("未获取到任何数据")
+            languages = Json.decodeFromString(HttpUtil.get(URL_LIST_LANGUAGES)) ?: throw Exception("未获取到任何数据")
         }
         return languages!!
     }
@@ -71,10 +73,10 @@ object GlotAPI {
      * 获取编程语言请求地址，若不支持将会抛出异常
      * @param language 编程语言名字（忽略大小写）
      * @return 返回语言请求地址
-     * @exception InvalidKeyException 不支持的语言
+     * @exception Exception 不支持的语言
      */
     fun getSupport(language: String): Language =
-        listLanguages().find { it.name.equals(language, true) } ?: throw InvalidKeyException("不支持的语言")
+        listLanguages().find { it.name.equals(language, true) } ?: throw Exception("不支持的语言")
 
     /**
      * 获取指定编程语言的模板文件（缓存）
@@ -90,7 +92,6 @@ object GlotAPI {
         templateFiles[lang.name] = templateFile
         return templateFile
     }
-
 
     /**
      * # 运行代码
@@ -165,8 +166,8 @@ object GlotAPI {
      * 导致程序无法在限定时间内返回，将会报告超时异常
      */
     fun runCode(language: Language, requestData: RunCodeRequest): RunResult {
-        val response = HttpUtil.post(language.url + "/latest", Klaxon().toJsonString(requestData), mapOf("Authorization" to API_TOKEN))
-        return Klaxon().parse(response) ?: throw Exception("未获取到任何数据")
+        val response = HttpUtil.post(language.url + "/latest", Json.encodeToString(requestData), mapOf("Authorization" to API_TOKEN))
+        return Json.decodeFromString(response) ?: throw Exception("未获取到任何数据")
     }
 
 

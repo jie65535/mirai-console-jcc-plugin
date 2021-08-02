@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "me.jie65535"
-version = "0.1"
+version = "0.2"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
@@ -16,5 +16,4 @@ repositories {
 
 dependencies{
     implementation("org.jsoup:jsoup:1.13.1")
-    implementation("com.beust:klaxon:5.5")
 }
