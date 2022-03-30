@@ -21,12 +21,11 @@ object JccCommand : CompositeCommand(
     @Description("帮助")
     suspend fun CommandSender.help() {
         sendMessage(
-            "$CMD_PREFIX <language> <code|pastebin> [stdin]\n" +
-            "例如：${CMD_PREFIX} python print(\"Hello world\")\n" +
-            "支持从pastebin.ubuntu.com中运行代码：\n" +
-            "$CMD_PREFIX c https://pastebin.ubuntu.com/p/KhBB7ZjVbD/\n" +
-            "你还可以在后面跟随标准输入（仅pastebin支持）：\n" +
-            "$CMD_PREFIX c https://pastebin.ubuntu.com/p/S2PyvRqJNf/ 1 2 3 4\n" +
+            "在线运行代码指令:\n" +
+            "$CMD_PREFIX <language> <code>\n" +
+            "$CMD_PREFIX <language> <pastebinUrl> [stdin]\n" +
+            "引用消息: $CMD_PREFIX <language> [stdin]\n" +
+            "仓库地址：https://github.com/jie65535/mirai-console-jcc-plugin\n" +
             "其它指令：\n" +
             usage
         )

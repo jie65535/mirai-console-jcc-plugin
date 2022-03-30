@@ -6,10 +6,12 @@
  - `run <language> <pastebinUrl> [stdin]`
  - `引用消息: run <language> [stdin]`
 ### 参数说明
- - `language` 编程语言  例如:`python`
- - `code` 代码  例如:`print("Hello world")`
- - `pastebinUrl` pastebin地址  例如:`https://pastebin.ubuntu.com/p/KhBB7ZjVbD/` 
- - `stdin` 可选 作为标准输入的内容
+| 参数 | 说明 | 示例 | 备注 |
+| ---- | ---- | --- | --- |
+| `language` | 编程语言 | `python` | 用`/jcc list`列出所有支持的语言 |
+| `code` | 代码 | `print("Hello world")` | 要运行的代码，支持换行 |
+| `pastebinUrl` | pastebin地址 | `https://pastebin.ubuntu.com/p/KhBB7ZjVbD/` | 需要在 [pastebin](https://pastebin.ubuntu.com/) 上传代码 | 
+| `stdin` | 标准输入 | `1 2 3 4 5` | 可选 用于`scanf`之类 |
 
 ## 使用示例
 ### 直接使用
@@ -19,18 +21,18 @@
 `run c https://pastebin.ubuntu.com/p/KhBB7ZjVbD/`
 
 ### 从 引用 执行代码：
-> print("Hello world")
+> 引用: print("Hello world")
 
-run python
+`run python`
 
 ### 支持运行程序带输入：
 #### 例1
-run c https://pastebin.ubuntu.com/p/S2PyvRqJNf/ 1 2 3 4
+`run c https://pastebin.ubuntu.com/p/S2PyvRqJNf/ 1 2 3 4 5`
 
 #### 例2
-> https://pastebin.ubuntu.com/p/S2PyvRqJNf/
+> 引用: https://pastebin.ubuntu.com/p/S2PyvRqJNf/
 
-run c 1 2 3 4 5
+`run c 1 2 3 4 5`
 
 ## 其他指令
  - /jcc help    # 帮助
@@ -39,7 +41,7 @@ run c 1 2 3 4 5
 
 ---
 
-## 使用方法
+## 插件使用方法
 本插件基于[Mirai-Console](https://github.com/mamoe/mirai-console)运行，您可以通过阅读[Mirai用户手册](https://docs.mirai.mamoe.net/UserManual.html)来了解如何安装、启动机器人。
 
 `MiraiConsole`成功启动后，只需要将本项目[发布](https://github.com/jie65535/mirai-console-jcc-plugin/releases)的`.jar`文件放入`.\plugins\`目录下即可加载插件。
