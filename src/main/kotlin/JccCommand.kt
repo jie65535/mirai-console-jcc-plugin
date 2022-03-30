@@ -1,9 +1,9 @@
-import JCC.CMD_PREFIX
+import JCompilerCollection.CMD_PREFIX
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.CompositeCommand
 
 object JccCommand : CompositeCommand(
-    JCC, "jcc",
+    JCompilerCollection, "jcc",
     description = "在线编译器集合"
 ) {
     @SubCommand
@@ -13,14 +13,23 @@ object JccCommand : CompositeCommand(
             sendMessage(GlotAPI.listLanguages().joinToString { it.name })
         } catch (e: Exception) {
             sendMessage("执行失败\n${e.message}")
-            JCC.logger.warning(e)
+            JCompilerCollection.logger.warning(e)
         }
     }
 
     @SubCommand
     @Description("帮助")
     suspend fun CommandSender.help() {
-        sendMessage("直接调用${CMD_PREFIX}即可运行代码\n例如：${CMD_PREFIX} python print(\"Hello world\")\n其它指令：\n$usage")
+        sendMessage(
+            "$CMD_PREFIX <language> <code|pastebin> [stdin]\n" +
+            "例如：${CMD_PREFIX} python print(\"Hello world\")\n" +
+            "支持从pastebin.ubuntu.com中运行代码：\n" +
+            "$CMD_PREFIX c https://pastebin.ubuntu.com/p/KhBB7ZjVbD/\n" +
+            "你还可以在后面跟随标准输入（仅pastebin支持）：\n" +
+            "$CMD_PREFIX c https://pastebin.ubuntu.com/p/S2PyvRqJNf/ 1 2 3 4\n" +
+            "其它指令：\n" +
+            usage
+        )
     }
 
     @SubCommand

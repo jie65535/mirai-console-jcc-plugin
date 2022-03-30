@@ -21,6 +21,7 @@ object UbuntuPastebinHelper {
      * 获取支持的语法列表（缓存）
      * @return 返回一个map，其中key是给人看的，value是作为参数传递的
      */
+    @Deprecated("paste.ubuntu.com 现在需要登录 首页不再显示符号列表，因此该方法弃用")
     fun getSyntaxList(): Map<String, String> {
         if (syntaxList != null)
             return syntaxList!!
@@ -33,16 +34,20 @@ object UbuntuPastebinHelper {
         return map
     }
 
+    fun checkUrl(url: String): Boolean {
+        return url.startsWith("https://pastebin.ubuntu.com/p/") && url.endsWith('/') && url.length < 45
+    }
+
     /**
      * 获取内容
      * @param url pastebin地址，如：https://paste.ubuntu.com/p/nmn8yKMtND/
      * @return 返回链接中贴的内容
      */
     fun get(url: String): String {
-        if (url.isEmpty() || !url.startsWith("https://paste.ubuntu.com/p/"))
+        if (!checkUrl(url))
             throw Exception("非法的url")
         val document = HttpUtil.getDocument(url)
-        return HttpUtil.documentSelect(document, ".paste > pre").text()
+        return HttpUtil.documentSelect(document, "#hidden-content").text()
     }
 
     /**
@@ -53,6 +58,7 @@ object UbuntuPastebinHelper {
      * @param expiration 过期时间（(empty)/day/week/month/year） 默认值："day"
      * @return 返回访问地址，如：https://paste.ubuntu.com/p/nmn8yKMtND/
      */
+    @Deprecated("paste.ubuntu.com 现在需要登录，因此不能再粘贴")
     fun paste(content: String, syntax: String = "text", poster: String = "temp", expiration: String = "day"): String {
         if (poster.length > 30)
             throw Exception("poster length too long!")

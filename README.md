@@ -1,8 +1,19 @@
 # JCC - J Compiler Collection
 ## 基于Glot接口的mirai-console在线编译器插件
 
-### 运行截图
-![运行截图](https://mirai.mamoe.net/assets/uploads/files/1627802860237-jcc.png)
+### 使用帮助
+```
+run <language> <code|pastebin> [stdin]
+例如：run python print("Hello world")
+支持从pastebin.ubuntu.com中运行代码：
+run c https://pastebin.ubuntu.com/p/KhBB7ZjVbD/
+你还可以在后面跟随标准输入（仅pastebin支持）：
+run c https://pastebin.ubuntu.com/p/S2PyvRqJNf/ 1 2 3 4
+其它指令：
+/jcc help    # 帮助
+/jcc list    # 列出所有支持的编程语言
+/jcc template <language>    # 获取指定语言的模板
+```
 
 ---
 
