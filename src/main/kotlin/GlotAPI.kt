@@ -35,8 +35,6 @@ object GlotAPI {
     @Serializable
     data class RunResult(val stdout: String, val stderr: String, val error: String)
 
-    private var languages: List<Language>? = null
-    private val templateFiles: MutableMap<String, CodeFile> = mutableMapOf()
     // val fileExtensions: Map<String, String> = mapOf("assembly" to "asm", "ats" to "dats", "bash" to "sh", "c" to "c", "clojure" to "clj", "cobol" to "cob", "coffeescript" to "coffee", "cpp" to "cpp", "crystal" to "cr", "csharp" to "cs", "d" to "d", "elixir" to "ex", "elm" to "elm", "erlang" to "erl", "fsharp" to "fs", "go" to "go", "groovy" to "groovy", "haskell" to "hs", "idris" to "idr", "java" to "java", "javascript" to "js", "julia" to "jl", "kotlin" to "kt", "lua" to "lua", "mercury" to "m", "nim" to "nim", "nix" to "nix", "ocaml" to "ml", "perl" to "pl", "php" to "php", "python" to "py", "raku" to "raku", "ruby" to "rb", "rust" to "rs", "scala" to "scala", "swift" to "swift", "typescript" to "ts", "plaintext" to "txt", )
 
     /**
@@ -56,10 +54,10 @@ object GlotAPI {
      * ```
      */
     fun listLanguages(): List<Language> {
-        if (languages == null) {
-            languages = Json.decodeFromString(HttpUtil.get(URL_LIST_LANGUAGES)) ?: throw Exception("未获取到任何数据")
+        if (JccPluginData.languages.isEmpty()) {
+            JccPluginData.languages = Json.decodeFromString(HttpUtil.get(URL_LIST_LANGUAGES)) ?: throw Exception("未获取到任何数据")
         }
-        return languages!!
+        return JccPluginData.languages
     }
 
     /**
@@ -83,13 +81,13 @@ object GlotAPI {
      */
     fun getTemplateFile(language: String): CodeFile {
         val lang = getSupport(language)
-        if (templateFiles.containsKey(lang.name))
-            return templateFiles[lang.name]!!
+        if (JccPluginData.templateFiles.containsKey(lang.name))
+            return JccPluginData.templateFiles[lang.name]!!
         val document = HttpUtil.getDocument(URL_NEW + lang.name)
         val filename = HttpUtil.documentSelect(document, ".filename").firstOrNull()?.text() ?: throw Exception("无法获取文件名")
         val fileContent = HttpUtil.documentSelect(document, "#editor-1").text() ?: throw Exception("无法获取模板文件内容")
         val templateFile = CodeFile(filename, fileContent)
-        templateFiles[lang.name] = templateFile
+        JccPluginData.templateFiles[lang.name] = templateFile
         return templateFile
     }
 
